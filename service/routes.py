@@ -56,6 +56,13 @@ def create_accounts():
     return make_response(
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
+@app.route("/accounts/<int:account_id>", methods=["GET"])
+def read_account(account_id):
+    """Read an Account"""
+    account = Account.find(account_id)
+    if not account:
+        abort(status.HTTP_404_NOT_FOUND)
+    return jsonify(account.serialize()), status.HTTP_200_OK
 
 ######################################################################
 # LIST ALL ACCOUNTS

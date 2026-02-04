@@ -124,3 +124,41 @@ class TestAccountService(TestCase):
         self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     # ADD YOUR TEST CASES HERE ...
+
+import json
+import unittest
+from service import app
+from service.common import status
+
+class TestRoutesRead(unittest.TestCase):
+    def setUp(self):
+        self.client = app.test_client()
+        self.client.testing = True
+
+    def _create_account(self, payload):
+        resp = self.client.post(
+            "/accounts",
+            data=json.dumps(payload),
+            content_type="application/json"
+        )
+        return resp
+
+    def test_read_an_account(self):
+        payload = {"name": "Test Read", "address": "1 Test Way", "email": "test@example.com"}
+        resp_create = self._create_account(payload)
+        self.assertEqual(resp_create.status_code, status.HTTP_201_CREATED)
+
+        created = json.loads(resp_create.data.decode("utf-8"))
+        acct_id = created["id"]
+
+        resp = self.client.get(f"/accounts/{acct_id}")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = json.loads(resp.data.decode("utf-8"))
+        self.assertEqual(data["id"], acct_id)
+        self.assertEqual(data["name"], payload["name"])
+        self.assertEqual(data["address"], payload["address"])
+
+    def test_account_not_found(self):
+        resp = self.client.get("/accounts/0")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
