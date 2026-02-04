@@ -162,3 +162,32 @@ class TestRoutesRead(unittest.TestCase):
     def test_account_not_found(self):
         resp = self.client.get("/accounts/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+class TestRoutesList(unittest.TestCase):
+    def setUp(self):
+        self.client = app.test_client()
+        self.client.testing = True
+
+    def _create_account(self, payload):
+        resp = self.client.post(
+            "/accounts",
+            data=json.dumps(payload),
+            content_type="application/json"
+        )
+        return resp
+
+    def test_list_accounts(self):
+        """List all accounts -> 200 and a list returned"""
+        payload = {
+            "name": "List User",
+            "address": "2 List Way",
+            "email": "list@example.com"
+        }
+        resp_create = self._create_account(payload)
+        self.assertEqual(resp_create.status_code, status.HTTP_201_CREATED)
+
+        resp = self.client.get("/accounts")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = json.loads(resp.data.decode("utf-8"))
+        self.assertIsInstance(data, list)
+        self.assertGreaterEqual(len(data), 1)
