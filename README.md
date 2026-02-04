@@ -1,3 +1,7 @@
+#devops-capstone-project
+
+This project is to build and deploy a Customer Accounts microservice using DevOps practices. 
+
 # DevOps Capstone Template
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
