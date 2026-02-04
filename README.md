@@ -1,4 +1,7 @@
+
 #devops-capstone-project
+
+![Build Status](https://github.com/theaelyse/devops-capstone-project/actions/workflows/ci-build.yaml/b>
 
 This project is to build and deploy a Customer Accounts microservice using DevOps practices. 
 
