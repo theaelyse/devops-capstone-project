@@ -235,3 +235,35 @@ class TestRoutesUpdate(unittest.TestCase):
         self.assertEqual(data["name"], update_payload["name"])
         self.assertEqual(data["address"], update_payload["address"])
         self.assertEqual(data["email"], update_payload["email"])
+class TestRoutesDelete(unittest.TestCase):
+    def setUp(self):
+        self.client = app.test_client()
+        self.client.testing = True
+
+    def _create_account(self, payload):
+        resp = self.client.post(
+            "/accounts",
+            data=json.dumps(payload),
+            content_type="application/json"
+        )
+        return resp
+
+    def test_delete_an_account(self):
+        """Delete an account -> 204 and subsequent GET returns 404"""
+        payload = {
+            "name": "To Be Deleted",
+            "address": "3 Delete Way",
+            "email": "delete@example.com"
+        }
+        resp_create = self._create_account(payload)
+        self.assertEqual(resp_create.status_code, status.HTTP_201_CREATED)
+
+        created = json.loads(resp_create.data.decode("utf-8"))
+        acct_id = created["id"]
+
+        resp = self.client.delete(f"/accounts/{acct_id}")
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+
+        # verify it's gone
+        resp = self.client.get(f"/accounts/{acct_id}")
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
