@@ -84,6 +84,20 @@ def read_account(account_id):
     if not account:
         abort(status.HTTP_404_NOT_FOUND)
     return jsonify(account.serialize()), status.HTTP_200_OK
+
+@app.route("/accounts/<int:account_id>", methods=["PUT"])
+def update_account(account_id):
+    """Update an Account"""
+    account = Account.find(account_id)
+    if not account:
+        abort(status.HTTP_404_NOT_FOUND)
+
+    check_content_type("application/json")
+    account.deserialize(request.get_json())
+    account.update()
+
+    return jsonify(account.serialize()), status.HTTP_200_OK
+
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################

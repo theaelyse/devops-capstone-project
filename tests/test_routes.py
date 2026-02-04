@@ -191,3 +191,47 @@ class TestRoutesList(unittest.TestCase):
         data = json.loads(resp.data.decode("utf-8"))
         self.assertIsInstance(data, list)
         self.assertGreaterEqual(len(data), 1)
+class TestRoutesUpdate(unittest.TestCase):
+    def setUp(self):
+        self.client = app.test_client()
+        self.client.testing = True
+
+    def _create_account(self, payload):
+        resp = self.client.post(
+            "/accounts",
+            data=json.dumps(payload),
+            content_type="application/json"
+        )
+        return resp
+
+    def test_update_an_account(self):
+        """Update an existing account -> 200 and updated data"""
+        payload = {
+            "name": "Original Name",
+            "address": "1 Old Way",
+            "email": "orig@example.com"
+        }
+        resp_create = self._create_account(payload)
+        self.assertEqual(resp_create.status_code, status.HTTP_201_CREATED)
+
+        created = json.loads(resp_create.data.decode("utf-8"))
+        acct_id = created["id"]
+
+        update_payload = {
+            "name": "Updated Name",
+            "address": "99 New Way",
+            "email": "updated@example.com"
+        }
+
+        resp = self.client.put(
+            f"/accounts/{acct_id}",
+            data=json.dumps(update_payload),
+            content_type="application/json"
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+        data = json.loads(resp.data.decode("utf-8"))
+        self.assertEqual(data["id"], acct_id)
+        self.assertEqual(data["name"], update_payload["name"])
+        self.assertEqual(data["address"], update_payload["address"])
+        self.assertEqual(data["email"], update_payload["email"])
