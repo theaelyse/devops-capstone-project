@@ -83,7 +83,7 @@ spec:
   steps:
     - name: nosetests
       image: python:3.9-slim
-      workingDir: $(workspaces.source.path)
+      workingDir: $(workspaces.source.path)/output
       env:
         - name: DATABASE_URI
           value: $(params.database_uri)
