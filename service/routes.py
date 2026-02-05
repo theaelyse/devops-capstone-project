@@ -77,6 +77,7 @@ def list_accounts():
 
 # ... place you code here to READ an account ...
 
+
 @app.route("/accounts/<int:account_id>", methods=["GET"])
 def read_account(account_id):
     """Read an Account"""
@@ -84,6 +85,7 @@ def read_account(account_id):
     if not account:
         abort(status.HTTP_404_NOT_FOUND)
     return jsonify(account.serialize()), status.HTTP_200_OK
+
 
 @app.route("/accounts/<int:account_id>", methods=["PUT"])
 def update_account(account_id):
@@ -127,6 +129,8 @@ def check_content_type(media_type):
         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
         f"Content-Type must be {media_type}",
     )
+
+
 @app.route("/accounts/<int:account_id>", methods=["DELETE"])
 def delete_account(account_id):
     """Delete an Account"""
