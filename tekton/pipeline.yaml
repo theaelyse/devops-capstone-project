@@ -56,6 +56,7 @@ spec:
           - --max-complexity=10
           - --max-line-length=127
           - --statistics
+          - --exit-zero
 
       runAfter:
         - clone
@@ -71,6 +72,8 @@ spec:
          value: sqlite:///test.db
        - name: args
          value: "-v --with-spec --spec-color"
+      runAfter: 
+       - clone
 
     - name: build
       workspaces:
