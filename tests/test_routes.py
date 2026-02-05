@@ -279,3 +279,9 @@ def test_security_headers():
     assert resp.headers.get("X-Content-Type-Options") == "nosniff"
     assert resp.headers.get("Content-Security-Policy") == "default-src 'self'; object-src 'none'"
     assert resp.headers.get("Referrer-Policy") == "strict-origin-when-cross-origin"
+def test_cors_headers():
+    """It should return CORS headers"""
+    resp = app.test_client().get("/", environ_overrides=HTTPS_ENVIRON)
+
+    assert resp.status_code == 200
+    assert resp.headers.get("Access-Control-Allow-Origin") == "*"
