@@ -12,12 +12,14 @@ from tests.factories import AccountFactory
 from service.common import status  # HTTP Status Codes
 from service.models import db, Account, init_db
 from service.routes import app
+from service import talisman
 
 DATABASE_URI = os.getenv(
     "DATABASE_URI", "postgresql://postgres:postgres@localhost:5432/postgres"
 )
 
 BASE_URL = "/accounts"
+HTTPS_ENVIRON = {'wsgi.url_scheme': 'https'}
 
 
 ######################################################################
@@ -28,6 +30,7 @@ class TestAccountService(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        talisman.force_https = False
         """Run once before all tests"""
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
@@ -267,3 +270,18 @@ class TestRoutesDelete(unittest.TestCase):
         # verify it's gone
         resp = self.client.get(f"/accounts/{acct_id}")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+def test_security_headers():
+    """It should return security headers when using https"""
+    resp = app.test_client().get("/", environ_overrides=HTTPS_ENVIRON)
+
+    assert resp.status_code == 200
+    assert resp.headers.get("X-Frame-Options") == "SAMEORIGIN"
+    assert resp.headers.get("X-Content-Type-Options") == "nosniff"
+    assert resp.headers.get("Content-Security-Policy") == "default-src 'self'; object-src 'none'"
+    assert resp.headers.get("Referrer-Policy") == "strict-origin-when-cross-origin"
+def test_cors_headers():
+    """It should return CORS headers"""
+    resp = app.test_client().get("/", environ_overrides=HTTPS_ENVIRON)
+
+    assert resp.status_code == 200
+    assert resp.headers.get("Access-Control-Allow-Origin") == "*"
