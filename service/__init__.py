@@ -6,11 +6,37 @@ and SQL database
 """
 import sys
 from flask import Flask
+from flask_talisman import Talisman
 from service import config
 from service.common import log_handlers
 
 # Create Flask application
 app = Flask(__name__)
+
+# Configure Talisman security headers
+csp = {
+    "default-src": "\x27self\x27"
+}
+
+Talisman(
+    app,
+    content_security_policy=csp,
+    frame_options="DENY",
+    force_https=False
+)
+
+@app.after_request
+def set_security_headers(response):
+    # CORS
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+
+    # Security headers
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    return response
+
 app.config.from_object(config)
 
 # Import the routes After the Flask app is created
