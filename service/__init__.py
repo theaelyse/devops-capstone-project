@@ -12,6 +12,7 @@ from service.common import log_handlers
 
 # Create Flask application
 app = Flask(__name__)
+talisman = Talisman(app)
 
 # Configure Talisman security headers
 csp = {
